@@ -81,25 +81,42 @@ exports.delete = (req, res, next) => {
       .catch(error => res.status(500).json({ error }));
   };
 
-  exports.like = (req, res, next) => {
+  
+  
+exports.like = (req, res, next) => {
     switch (req.body.like) {
       case 0:
-          console.log("ok");
-          Sauce.findOne({ _id: req.body.id })
-          .then((sauce) => {
-            if (sauce.usersLiked.find(user => user === req.body.userId)) {
-              Sauce.updateOne({ _id: req.body.id }, {
+          Sauce.findOne({ _id: req.params.id })
+          .then(oldSauce => {
+            if (oldSauce.usersLiked.find(userId => userId === req.body.userId)){
+              Sauce.updateOne({ _id: oldSauce.id }, {
                 $inc: { likes: -1 },
                 $pull: { usersLiked: req.body.userId },
                 _id: req.params.id
               })
                 .then(() => { res.status(201).json({ message: 'Total modified' }); })
                 .catch((error) => { res.status(400).json({ error: error }); });
-            } if (sauce.usersDisliked.find(user => user === req.body.userId)) {
-              Sauce.updateOne({ _id: req.body.id }, {
+            } 
+            else if (oldSauce.usersDisliked.find(userId => userId === req.body.userId)){
+              Sauce.updateOne({ _id: oldSauce.id }, {
                 $inc: { dislikes: -1 },
                 $pull: { usersDisliked: req.body.userId },
-                _id: req.body.id
+                _id: req.params.id
+              })
+                .then(() => { res.status(201).json({ message: 'Total modified' }); })
+                .catch((error) => { res.status(400).json({ error: error }); });
+            } 
+          })
+          .catch((error) => { res.status(404).json({ error: error }); });
+        break;
+      case 1:
+        Sauce.findOne({ _id: req.params.id })
+          .then(oldSauce => {
+            if (oldSauce.usersLiked.indexOf(req.body.userId === -1)){
+              Sauce.updateOne({ _id: oldSauce.id }, {
+                $inc: { likes: 1 },
+                $push: { usersLiked: req.body.userId },
+                _id: req.params.id
               })
                 .then(() => { res.status(201).json({ message: 'Total modified' }); })
                 .catch((error) => { res.status(400).json({ error: error }); });
@@ -107,27 +124,22 @@ exports.delete = (req, res, next) => {
           })
           .catch((error) => { res.status(404).json({ error: error }); });
         break;
-      case 1:
-        Sauce.findOne({_id : req.params.id})
-        .then(oldSauce => 
-          Sauce.updateOne({_id : oldSauce.id},
-            {likes : oldSauce.likes +1, name : "oosyoooo", $push : {usersLiked : req.body.userId}}
-            ))
-        .then(() => { res.status(201).json({ message: 'Sauce liked' }); })
-        .catch((error) => { res.status(400).json({ error: error }); });
-        break;
       case -1:
-        Sauce.findOne({_id : req.params.id})
-        .then(oldSauce => 
-          Sauce.updateOne({_id : oldSauce.id},
-            {dislikes : oldSauce.dislikes +1, name : "oosyoooo", $push : {usersDisliked : req.body.userId}}
-            ))
-        .then(() => { res.status(201).json({ message: 'Sauce disliked' }); })
-        .catch((error) => { res.status(400).json({ error: error }); });
+          Sauce.findOne({ _id: req.params.id })
+          .then(oldSauce => {
+            if (oldSauce.usersDisliked.indexOf(req.body.userId === -1)){
+              Sauce.updateOne({ _id: oldSauce.id }, {
+                $inc: { dislikes: 1 },
+                $push: { usersDisliked: req.body.userId },
+                _id: req.params.id
+              })
+                .then(() => { res.status(201).json({ message: 'Total modified' }); })
+                .catch((error) => { res.status(400).json({ error: error }); });
+            }
+          })
+          .catch((error) => { res.status(404).json({ error: error }); });
         break;
-  
-      default:
+    default:
         console.error('Wrong request');
     }
   };
-  
