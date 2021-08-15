@@ -121,6 +121,9 @@ exports.like = (req, res, next) => {
                 .then(() => { res.status(201).json({ message: 'Total modified' }); })
                 .catch((error) => { res.status(400).json({ error: error }); });
             }
+            else{
+              return res.status(500).json({ error: 'Sauce already liked' });
+            }
           })
           .catch((error) => { res.status(404).json({ error: error }); });
         break;
@@ -136,6 +139,7 @@ exports.like = (req, res, next) => {
                 .then(() => { res.status(201).json({ message: 'Total modified' }); })
                 .catch((error) => { res.status(400).json({ error: error }); });
             }
+            
           })
           .catch((error) => { res.status(404).json({ error: error }); });
         break;

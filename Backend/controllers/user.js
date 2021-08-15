@@ -1,20 +1,41 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+var crypto = require('crypto');
 
 const User = require('../models/user');
 
+const testMail = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
+
+function encrypt(text){
+  var cipher = crypto.createCipher('aes-256-cbc', process.env.SERVER_SECRET);
+  var crypted = cipher.update(text,'utf8','hex');
+  crypted += cipher.final('hex');
+  return crypted;
+} 
+
 exports.signup = (req, res, next) => {
-  bcrypt.hash(req.body.password, 10)
-    .then(hash => {
-      const user = new User({
-        email: req.body.email,
-        password: hash
-      });
-      user.save()
-        .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
-        .catch(error => res.status(400).json({ error }));
-    })
-    .catch(error => res.status(500).json({ error }));
+  if (testMail.test(req.body.email)){
+    if (9 <= req.body.password.length <= 20){
+      encrypt(req.body.email);
+      bcrypt.hash(req.body.password, 10)
+      .then(hash => {
+        const user = new User({
+          email: crypted,
+          password: hash
+        });
+        user.save()
+          .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
+          .catch(error => res.status(400).json({ error }));
+      })
+      .catch(error => res.status(500).json(error ));
+    }
+    else{
+      return res.status(500).json ({message: 'Le mot de passe doit contenir entre 9 et 20 caractères.'});
+    }
+  }
+  else{
+    return res.status(500).json ({message: 'Le mail doit correspondre aux normes.'});
+  }
 };
 
 exports.login = (req, res, next) => {
