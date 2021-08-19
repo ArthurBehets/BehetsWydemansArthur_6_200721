@@ -1,6 +1,6 @@
 const Sauce = require('../models/sauce');
 const fs = require('fs');
-
+// getAll : find every Sauce and return it
 exports.getAll = (req, res, next) => {
     Sauce.find().then(
       (allSauces) => {
@@ -14,7 +14,7 @@ exports.getAll = (req, res, next) => {
       }
     );
 };
-
+//getOne : find a sauce with the id and return it
   exports.getOne = (req, res, next) => {
       Sauce.findOne({
           _id : req.params.id
@@ -30,7 +30,8 @@ exports.getAll = (req, res, next) => {
         }
     )
   }
-  
+
+  // create : create a new Sauce and put the req.body.sauce on it
 exports.create = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
     delete sauceObject._id;
@@ -54,6 +55,7 @@ exports.create = (req, res, next) => {
     ))
 }
 
+// modify : check if the req have a file. Yes? Modify the file then the rest of the request. No? Just modify the rest of the request
 exports.modify = (req, res, next) => {
     const sauceObject = req.file ?
       {
@@ -66,6 +68,7 @@ exports.modify = (req, res, next) => {
       .catch(error => res.status(400).json({ error }));
   };
 
+  // delete : find a sauce with the id and delete it and the file.
 exports.delete = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id })
     .then(sauce => {
@@ -82,9 +85,10 @@ exports.delete = (req, res, next) => {
   };
 
   
-  
+  // Like : like, dislike or delete the like/dislike of the sauce
 exports.like = (req, res, next) => {
     switch (req.body.like) {
+      // delete the like/dislike
       case 0:
           Sauce.findOne({ _id: req.params.id })
           .then(oldSauce => {
@@ -109,6 +113,7 @@ exports.like = (req, res, next) => {
           })
           .catch((error) => { res.status(404).json({ error: error }); });
         break;
+        // like
       case 1:
         Sauce.findOne({ _id: req.params.id })
           .then(oldSauce => {
@@ -127,6 +132,7 @@ exports.like = (req, res, next) => {
           })
           .catch((error) => { res.status(404).json({ error: error }); });
         break;
+        //dislike
       case -1:
           Sauce.findOne({ _id: req.params.id })
           .then(oldSauce => {

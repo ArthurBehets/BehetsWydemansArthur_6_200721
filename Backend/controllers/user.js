@@ -1,28 +1,26 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-var crypto = require('crypto');
 
 const User = require('../models/user');
 
+require('dotenv').config(); 
+
 const testMail = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
-function encrypt(text){
-  var cipher = crypto.createCipher('aes-256-cbc', process.env.SERVER_SECRET);
-  var crypted = cipher.update(text,'utf8','hex');
-  crypted += cipher.final('hex');
-  return crypted;
-} 
-
+// signup : receive email and password, hash the password and save the user on the DB
 exports.signup = (req, res, next) => {
+  //check the email
   if (testMail.test(req.body.email)){
+    //check the password
     if (9 <= req.body.password.length <= 20){
-      encrypt(req.body.email);
       bcrypt.hash(req.body.password, 10)
       .then(hash => {
+        //Create the new user
         const user = new User({
-          email: crypted,
+          email: req.body.email,
           password: hash
         });
+        // save the new user
         user.save()
           .then(() => res.status(201).json({ message: 'Utilisateur créé !' }))
           .catch(error => res.status(400).json({ error }));
@@ -38,22 +36,26 @@ exports.signup = (req, res, next) => {
   }
 };
 
+// login : find the user with the email, give him a access for 24h
 exports.login = (req, res, next) => {
+  //find the user
   User.findOne({ email: req.body.email })
     .then(user => {
       if (!user) {
         return res.status(401).json({ error: 'Utilisateur non trouvé !' });
       }
+      //check the password
       bcrypt.compare(req.body.password, user.password)
         .then(valid => {
           if (!valid) {
             return res.status(401).json({ error: 'Mot de passe incorrect !' });
           }
+          // give access for 24h
           res.status(200).json({
             userId: user._id,
             token: jwt.sign(
               { userId: user._id },
-              'RANDOM_TOKEN_SECRET',
+              `${process.env.ACCESS_TOKEN_SECRET}`,
               { expiresIn: '24h' }
             )
           });
