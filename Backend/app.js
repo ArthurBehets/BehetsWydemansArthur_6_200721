@@ -10,6 +10,7 @@ require('dotenv').config();
 
 const userRoutes = require('./routes/user');
 const sauceRoutes = require('./routes/sauce');
+
 //connection to mongodb with identifiants on the .env
 mongoose.connect(`mongodb+srv://${process.env.DB_user}:${process.env.DB_password}@cluster0.yf0qk.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`,
   { useNewUrlParser: true,
