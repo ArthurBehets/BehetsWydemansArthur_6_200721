@@ -7,3 +7,11 @@
 3) In the backend console : nodemon server
 4) In the frontend console : npm start
 5) Lunch the localhost:4200 in your browser
+
+
+Utility : 
+
+(Not online.)
+Connect yourself to the application to add your Sauce or like/dislike other sauces. 
+You can modify or delete sauces you added yourself and change your mind any time with the likes/dislikes.
+
