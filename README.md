@@ -13,5 +13,5 @@ Utility :
 
 (Not online.)
 Connect yourself to the application to add your Sauce or like/dislike other sauces. 
-You can modify or delete sauces you added yourself and change your mind any time with the likes/dislikes.
+You can modify or delete sauces you added yourself and change your mind any time about the likes/dislikes.
 
