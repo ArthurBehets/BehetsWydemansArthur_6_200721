@@ -55,7 +55,7 @@ exports.login = (req, res, next) => {
             userId: user._id,
             token: jwt.sign(
               { userId: user._id },
-              `${process.env.ACCESS_TOKEN_SECRET}`,
+              `${process.env.ACCESS_TOKEN_SECRET}`+ require('crypto').randomBytes(64).toString('hex'),
               { expiresIn: '24h' }
             )
           });
